@@ -1,0 +1,90 @@
+.videochat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f0f8ff;
+  gap: 20px;
+}
+
+.video {
+  width: 45%;
+  max-width: 600px;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.interest-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.interest-form h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+.interest-form input {
+  padding: 10px;
+  font-size: 16px;
+  width: 260px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.interest-form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.interest-form button:hover {
+  background-color: #005dc1;
+}
+
+.loading-screen {
+  font-size: 18px;
+  color: #333;
+  padding: 30px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-preview {
+  width: 280px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .videochat-container {
+    flex-direction: column;
+  }
+
+  .video {
+    width: 90%;
+    aspect-ratio: 4 / 3;
+  }
+}

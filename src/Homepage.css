@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Raleway', sans-serif;
+  background: linear-gradient(to bottom, #f0f8ff, #e0f0ff);
+}
+
+.home-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-align: center;
+  padding: 20px;
+}
+
+/* === Logo Styles === */
+.logo-wrapper {
+  transition: all 1.5s ease;
+  transform: translateY(0);
+  opacity: 0;
+  animation: fadeInZoom 1.5s ease forwards;
+}
+
+.logo-wrapper.logo-fly {
+  transform: translateY(-150px);
+}
+
+.logo {
+  width: 400px;
+  height: auto;
+}
+
+/* === Logo Animation === */
+@keyframes fadeInZoom {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* === Content Text + Buttons === */
+.content-wrapper {
+  margin-top: -120px;
+  max-width: 700px;
+}
+
+.welcome-text {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.button-block {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.chat-button {
+  padding: 14px 28px;
+  font-size: 19px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 200px;
+  transition: all 0.3s ease;
+}
+
+.chat-button.text {
+  background: linear-gradient(145deg, #0077ff, #00bbff);
+  color: white;
+}
+
+.chat-button.video {
+  background: linear-gradient(145deg, #ff3366, #ff6699);
+  color: white;
+}
+
+.chat-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* === Fade-In Delay === */
+.fade-in {
+  animation: fadeInContent 1s ease 2s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInContent {
+  to {
+    opacity: 1;
+  }
+}
+
+/* === Mobile Responsive === */
+@media (max-width: 600px) {
+  .chat-button {
+    width: 160px;
+    font-size: 15px;
+  }
+
+  .logo {
+    width: 200px;
+  }
+
+  .welcome-text {
+    font-size: 16px;
+  }
+}
