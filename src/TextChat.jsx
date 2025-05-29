@@ -18,7 +18,7 @@ const TextChat = () => {
   const handleStart = () => {
     if (interest.trim()) {
       setLoading(true);
-      socket.emit("join", { interest });
+      socket.emit("join-room", { interest });
     }
   };
 
