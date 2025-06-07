@@ -1,216 +1,173 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Peer from 'simple-peer';
 import io from 'socket.io-client';
-import './Videochat.css';
+import Peer from 'simple-peer';
+import './Homepage.css';
 
-const socket = io('http://localhost:5000'); // Replace with deployed backend when live
+const socket = io('http://localhost:5000'); // Replace with your backend if deployed
 
-function Videochat() {
+function VideoChat() {
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const chatEndRef = useRef(null);
+
   const [stream, setStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
-  const [interest, setInterest] = useState('');
-  const [step, setStep] = useState('form');
-  const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([]);
+  const [peer, setPeer] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [interest, setInterest] = useState(localStorage.getItem('interest') || '');
+  const [connecting, setConnecting] = useState(true);
 
-  const userVideo = useRef(null);
-  const partnerVideo = useRef(null);
-  const peerRef = useRef(null);
-  const isInitiator = useRef(false);
-  const matchedPartnerId = useRef(null);
-
-  // Get camera/mic
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(localStream => {
-        console.log("🎥 Got local media stream");
-        setStream(localStream);
-        if (userVideo.current) {
-          userVideo.current.srcObject = localStream;
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(currentStream => {
+      setStream(currentStream);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = currentStream;
+      }
+
+      connectToRoom(currentStream);
+
+      const handleESC = (e) => {
+        if (e.key === 'Escape') {
+          handleESCPress(currentStream);
         }
-      })
-      .catch(err => {
-        console.error("❌ Media access error:", err);
-        alert('Please allow camera and microphone access.');
-      });
+      };
+
+      window.addEventListener('keydown', handleESC);
+      return () => window.removeEventListener('keydown', handleESC);
+    });
+
+    socket.on('receive-message', ({ message }) => {
+      setMessages(prev => [...prev, { text: message, sender: 'them' }]);
+    });
+
+    return () => {
+      stream?.getTracks().forEach(track => track.stop());
+      peer?.destroy();
+      socket.disconnect();
+    };
   }, []);
 
-  // Set local stream again once DOM is fully ready
   useEffect(() => {
-    if (step === 'connected' && userVideo.current && stream) {
-      console.log("✅ DOM ready. Assigning local stream to userVideo");
-      userVideo.current.srcObject = stream;
-    }
-  }, [step, stream]);
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  // Set remote stream once video tag is ready
-  useEffect(() => {
-    if (step === 'connected' && partnerVideo.current && remoteStream) {
-      console.log("✅ DOM ready. Assigning remote stream to partnerVideo");
-      partnerVideo.current.srcObject = null;
-      partnerVideo.current.srcObject = remoteStream;
-    }
-  }, [step, remoteStream]);
+  function connectToRoom(currentStream) {
+    setConnecting(true);
+    socket.connect();
+    socket.emit('join-video-room', { interest });
 
-  useEffect(() => {
-    if (!stream) return;
-
-    socket.off('match-found');
-    socket.off('call-user');
-    socket.off('accept-call');
-    socket.off('partner-disconnected');
-    socket.off('video-message');
-
-    socket.on('match-found', ({ partner }) => {
-      matchedPartnerId.current = partner;
-      isInitiator.current = socket.id < partner;
-      console.log("✅ Matched with:", partner);
-      console.log("🧭 I am initiator:", isInitiator.current);
-
-      const peer = new Peer({
-        initiator: isInitiator.current,
-        trickle: false,
-        stream: stream
-      });
-
-      peer.on('signal', data => {
-        if (isInitiator.current) {
-          console.log("📤 Initiator sending signal to:", partner);
-          socket.emit('call-user', { signalData: data, userToCall: partner });
-        }
-      });
-
-      peer.on('stream', remote => {
-        console.log("🎥 Initiator received remote stream:", remote.getTracks());
-        setRemoteStream(remote);
-        setStep('connected');
-      });
-
-      peerRef.current = peer;
+    socket.on('user-joined', userId => {
+      const newPeer = createPeer(userId, socket.id, currentStream);
+      setPeer(newPeer);
     });
 
-    socket.on('call-user', ({ signalData, userToCall }) => {
-      console.log("📞 Received call-user from:", userToCall);
-
-      const peer = new Peer({
-        initiator: false,
-        trickle: false,
-        stream: stream
-      });
-
-      peer.on('signal', signal => {
-        console.log("📤 Receiver sending accept-call to:", userToCall);
-        socket.emit('accept-call', { signal, to: userToCall });
-      });
-
-      peer.on('stream', remote => {
-        console.log("🎥 Receiver received remote stream:", remote.getTracks());
-        setRemoteStream(remote);
-        setStep('connected');
-      });
-
-      peer.signal(signalData);
-      peerRef.current = peer;
+    socket.on('receive-signal', ({ signal, from }) => {
+      const newPeer = addPeer(signal, from, currentStream);
+      setPeer(newPeer);
     });
 
-    socket.on('accept-call', ({ signal }) => {
-      console.log("✅ Received accept-call");
-      if (peerRef.current) {
-        peerRef.current.signal(signal);
-      } else {
-        setTimeout(() => {
-          if (peerRef.current) {
-            peerRef.current.signal(signal);
-            console.log("✅ Retried signal after delay");
-          }
-        }, 500);
+    socket.on('receiving-returned-signal', ({ signal }) => {
+      peer && peer.signal(signal);
+      setConnecting(false);
+    });
+  }
+
+  function handleESCPress(currentStream) {
+    peer?.destroy();
+    socket.disconnect();
+    setMessages([]);
+    setPeer(null);
+    setConnecting(true);
+    setTimeout(() => {
+      connectToRoom(currentStream);
+    }, 500);
+  }
+
+  function createPeer(userToSignal, callerID, stream) {
+    const newPeer = new Peer({ initiator: true, trickle: false, stream });
+
+    newPeer.on('signal', signal => {
+      socket.emit('send-signal', { userToSignal, callerID, signal });
+    });
+
+    newPeer.on('stream', remoteStream => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStream;
       }
     });
 
-    socket.on('partner-disconnected', () => {
-      console.log("⚠️ Partner disconnected");
-      setChatMessages(prev => [...prev, { type: 'system', text: 'Your partner disconnected.' }]);
-      alert('Your partner disconnected.');
-      window.location.reload();
+    return newPeer;
+  }
+
+  function addPeer(incomingSignal, from, stream) {
+    const newPeer = new Peer({ initiator: false, trickle: false, stream });
+
+    newPeer.on('signal', signal => {
+      socket.emit('return-signal', { signal, to: from });
     });
 
-    socket.on('video-message', (text) => {
-      console.log("📨 Received message:", text);
-      setChatMessages(prev => [...prev, { type: 'received', text }]);
-    });
-  }, [stream]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (interest.trim()) {
-      if (!stream) {
-        alert("Camera not ready. Please wait.");
-        return;
+    newPeer.on('stream', remoteStream => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStream;
       }
-      setStep('loading');
-      socket.emit('join-room', { interest, peerId: socket.id });
-      console.log("📡 Sent join-room with interest:", interest);
-    }
-  };
+    });
+
+    newPeer.signal(incomingSignal);
+    return newPeer;
+  }
 
   const sendMessage = () => {
-    if (message.trim()) {
-      setChatMessages(prev => [...prev, { type: 'sent', text: message }]);
-      socket.emit('video-message', message);
-      setMessage('');
+    if (newMessage.trim() !== '') {
+      socket.emit('send-message', { message: newMessage });
+      setMessages(prev => [...prev, { text: newMessage, sender: 'me' }]);
+      setNewMessage('');
     }
   };
 
   return (
-    <div className="videochat-container">
-      {step === 'form' && (
-        <form onSubmit={handleSubmit} className="interest-form">
-          <h2>Enter Your Interest</h2>
-          <input
-            type="text"
-            placeholder="e.g. music, books"
-            value={interest}
-            onChange={(e) => setInterest(e.target.value)}
-            required
-          />
-          <button type="submit">Start Video Chat</button>
-        </form>
-      )}
-
-      {step === 'loading' && (
-        <div className="loading-screen">
-          <p>🔄 Connecting you to a match based on interest: <strong>{interest}</strong></p>
-          <video ref={userVideo} autoPlay playsInline muted className="video loading-preview" />
+    <>
+      {connecting && (
+        <div className="connecting-overlay">
+          <div className="loader-heart"></div>
+          <p>Connecting you to someone...</p>
         </div>
       )}
 
-      {step === 'connected' && (
-        <div className="connected-wrapper">
-          <div className="video-grid">
-            <video ref={userVideo} autoPlay playsInline muted className="video" />
-            <video ref={partnerVideo} autoPlay playsInline className="video" />
+      <div className="chat-video-container">
+        <div className="video-wrapper">
+          <video ref={localVideoRef} autoPlay muted className="video-element" />
+          <video ref={remoteVideoRef} autoPlay className="video-element" />
+        </div>
+
+        <div className="chat-box">
+          <div className="messages">
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`message-bubble ${msg.sender === 'me' ? 'sent' : 'received'}`}
+              >
+                {msg.text}
+              </div>
+            ))}
+            <div ref={chatEndRef} />
           </div>
-          <div className="chat-box">
-            <div className="messages">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`message ${msg.type}`}>{msg.text}</div>
-              ))}
-            </div>
-            <div className="input-area">
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              />
-              <button onClick={sendMessage}>Send</button>
-            </div>
+
+          <div className="input-area">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={newMessage}
+              onChange={e => setNewMessage(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            />
+            <button onClick={sendMessage}>Send</button>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+
+      <button className="esc-button" onClick={() => handleESCPress(stream)}>⎋ Press ESC to Skip</button>
+    </>
   );
 }
 
-export default Videochat;
+export default VideoChat;
