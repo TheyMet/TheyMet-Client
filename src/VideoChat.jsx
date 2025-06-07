@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Peer from 'simple-peer';
 import './Homepage.css';
 
-const socket = io('http://localhost:5000'); // Replace with your backend if deployed
+const socket = io('http://localhost:5000'); // Update this if deployed
 
 function VideoChat() {
   const localVideoRef = useRef(null);
@@ -133,13 +133,13 @@ function VideoChat() {
         </div>
       )}
 
-      <div className="chat-video-container">
-        <div className="video-wrapper">
-          <video ref={localVideoRef} autoPlay muted className="video-element" />
-          <video ref={remoteVideoRef} autoPlay className="video-element" />
+      <div className="split-layout">
+        <div className="video-column">
+          <video ref={remoteVideoRef} autoPlay className="video-box" />
+          <video ref={localVideoRef} autoPlay muted className="video-box" />
         </div>
 
-        <div className="chat-box">
+        <div className="chat-column">
           <div className="messages">
             {messages.map((msg, idx) => (
               <div
@@ -165,7 +165,9 @@ function VideoChat() {
         </div>
       </div>
 
-      <button className="esc-button" onClick={() => handleESCPress(stream)}>⎋ Press ESC to Skip</button>
+      <button className="esc-button" onClick={() => handleESCPress(stream)}>
+        ⎋ Press ESC to Skip
+      </button>
     </>
   );
 }
