@@ -1,29 +1,19 @@
-// src/App.jsx
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
-import HomePage from "./HomePage";
-import TextChat from "./TextChat";
-import VideoChat from "./VideoChat";
-
-const AnimatedRoutes = () => {
-  const location = useLocation();
-
-  return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/text" element={<TextChat />} />
-        <Route path="/video" element={<VideoChat />} />
-      </Routes>
-    </AnimatePresence>
-  );
-};
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './HomePage';
+import TextChat from './Textchat';
+import VideoLobby from './VideoLobby';
+import VideoChat from './VideoChat';
 
 function App() {
   return (
     <Router>
-      <AnimatedRoutes />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/text" element={<TextChat />} />
+        <Route path="/video" element={<VideoLobby />} />
+        <Route path="/videochat" element={<VideoChat />} />
+      </Routes>
     </Router>
   );
 }
