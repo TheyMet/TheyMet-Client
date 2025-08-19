@@ -1,0 +1,171 @@
+/* =======================================
+   Universal Chat Styles
+   Used in TextChat + VideoChat
+   ======================================= */
+
+/* Chat window container */
+.chat-window,
+.messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f7f9fc;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* -------------------
+   Chat bubbles
+   ------------------- */
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 20px;
+  max-width: 70%;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  animation: popIn 0.2s ease;
+  position: relative;
+}
+
+/* Sent by me */
+.message-bubble.sent {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #0077ff, #3399ff);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+/* Received from partner */
+.message-bubble.received {
+  align-self: flex-start;
+  background: #eaeaea;
+  color: #222;
+  border-bottom-left-radius: 6px;
+}
+
+/* System messages */
+.message-bubble.system {
+  align-self: center;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.85rem;
+  border-radius: 12px;
+  padding: 6px 12px;
+}
+
+/* -------------------
+   Input area
+   ------------------- */
+.input-area,
+.message-box {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid #eee;
+  background: white;
+}
+
+.input-area input,
+.message-box input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.input-area button,
+.message-box button {
+  background: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.input-area button:hover,
+.message-box button:hover {
+  background: #005dc1;
+}
+
+/* -------------------
+   Read receipts
+   ------------------- */
+.message-bubble.sent .ticks {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.ticks.single {
+  color: #e6f0ff; /* Sent */
+}
+
+.ticks.double {
+  color: #d9ecff; /* Delivered */
+}
+
+.ticks.double.read {
+  color: #9ad0ff; /* Read */
+}
+
+/* -------------------
+   Typing indicator
+   ------------------- */
+.typing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin: 0 16px 12px 16px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.typing-dots {
+  display: inline-block;
+  width: 28px;
+  text-align: left;
+  letter-spacing: 2px;
+}
+
+.typing-dots::after {
+  content: '•';
+  animation: dots 1.2s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0% { content: '•  '; }
+  33% { content: '•• '; }
+  66% { content: '•••'; }
+  100% { content: '•  '; }
+}
+
+/* -------------------
+   Animations
+   ------------------- */
+@keyframes popIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* -------------------
+   Responsive
+   ------------------- */
+@media (max-width: 600px) {
+  .message-bubble {
+    max-width: 85%;
+    font-size: 0.9rem;
+  }
+}

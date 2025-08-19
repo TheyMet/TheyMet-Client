@@ -1,0 +1,102 @@
+/* ===============================
+   Common Interest Form Styles
+   Used in TextChat + VideoChat
+   =============================== */
+
+.interest-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  margin: auto;
+}
+
+.interest-form h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.interest-form input {
+  padding: 12px;
+  font-size: 16px;
+  width: 260px;
+  border: 2px solid #0077ff;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.interest-form input:focus {
+  border-color: #005dc1;
+}
+
+.interest-form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+
+.interest-form button:hover {
+  background-color: #005dc1;
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   Common ESC Button Styles
+   =============================== */
+
+.esc-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: #ff4d6d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+  z-index: 1000;
+}
+
+.esc-button:hover {
+  background-color: #d93654;
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   Responsive
+   =============================== */
+
+@media (max-width: 600px) {
+  .interest-form {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .interest-form input {
+    width: 100%;
+  }
+
+  .esc-button {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}

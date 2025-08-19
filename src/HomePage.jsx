@@ -1,42 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Homepage.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./HomePage.css";
 
 function HomePage() {
-  const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowContent(true);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <div className="home-container">
-      <div className={`logo-wrapper ${showContent ? 'logo-fly' : ''}`}>
-        <img src="/logo.png" alt="TheyMet Logo" className="logo" />
+    <div className="homepage">
+      <div className="welcome-box">
+        <h1>TheyMet</h1>
+        <p>
+          Meet someone new in a click — chat via <strong>Text</strong> or{" "}
+          <strong>Video</strong>, matched by your interests.
+        </p>
       </div>
 
-      {showContent && (
-        <div className="content-wrapper fade-in">
-          <p className="welcome-text">
-            👋 Welcome to <strong>TheyMet</strong> — the place where you can meet someone new in a click!<br />
-            Choose <strong>Text Chat</strong> or <strong>Video Chat</strong> and get instantly matched with people who share your interests.<br />
-            Please chat respectfully and follow our safety guidelines 💙
-          </p>
+      {/* 🔒 Privacy & Safety Banner */}
+      <div className="privacy-banner">
+        <h3>🔒 Your Privacy Matters</h3>
+        <ul>
+          <li>
+            Chats are <strong>anonymous</strong> — no signup, no personal info.
+          </li>
+          <li>
+            Messages and video are <strong>not stored</strong> or logged.
+          </li>
+          <li>
+            Once the chat ends, <strong>everything is gone forever</strong>.
+          </li>
+          <li>
+            Be respectful & follow <strong>safe chatting guidelines</strong>.
+          </li>
+        </ul>
+      </div>
 
-          <div className="button-block">
-            <button className="chat-button text" onClick={() => navigate('/text')}>
-              Text Chat
-            </button>
-            <button className="chat-button video" onClick={() => navigate('/video')}>
-              Video Chat
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Buttons for Chat */}
+      <div className="chat-options">
+        <button onClick={() => navigate("/text")}>💬 Text Chat</button>
+        <button onClick={() => navigate("/video")}>🎥 Video Chat</button>
+      </div>
+
+      <footer className="footer">
+        <p>⚡ Built with ❤️ for safe and fun conversations</p>
+      </footer>
     </div>
   );
 }
